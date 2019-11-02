@@ -14,6 +14,8 @@ type Table struct {
 	Name       string
 	Columns    []Schema
 	Constraint Constraint
+	Engine     string
+	Charset    string
 }
 
 type Schema struct {
@@ -106,7 +108,17 @@ func Blueprint(connector *sql.DB, table Table) (err error) {
 		createTable += table.Constraint.constraints
 	}
 
-	createTable += fmt.Sprintf(`) ENGINE=%s CHARACTER SET=%s;`, Engine, Charset)
+	engine := table.Engine
+	if engine == "" {
+		engine = Engine
+	}
+
+	charset := table.Charset
+	if charset == "" {
+		charset = Charset
+	}
+
+	createTable += fmt.Sprintf(`) ENGINE=%s CHARACTER SET=%s;`, engine, charset)
 	_, err = connector.Exec(createTable)
 
 	if err != nil {
