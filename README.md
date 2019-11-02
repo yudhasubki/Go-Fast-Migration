@@ -19,7 +19,6 @@ import (
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
-	migration "github.com/yudhasubki/go-fastmigration"
 	schema "github.com/yudhasubki/go-fastmigration"
 )
 
