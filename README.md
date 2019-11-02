@@ -43,9 +43,11 @@ func (m *Migration) GenderMigration() {
 	id := schema.Create().Column("id").Type("INT").Nullable(false).Length(11).PrimaryKey().AutoIncrement()
 	gender := schema.Create().Column("gender").Type("enum").Enum([]string{"Men", "Women"}).NullableEnum()
 	table := schema.Table{
-		Columns: []schema.Schema{*id, *gender},
+		Name:      "genders",
+		Connector: m.Connector,
+		Columns:   []schema.Schema{*id, *gender},
 	}
-	err := schema.Blueprint(m.Connector, "genders", table)
+	err := table.Blueprint()
 	if err != nil {
 		return
 	}
@@ -53,18 +55,20 @@ func (m *Migration) GenderMigration() {
 }
 
 func (m *Migration) UserMigration() (err error) {
-	id := migration.Create().Column("id").Type("INT").Nullable(false).Length(11).PrimaryKey().AutoIncrement()
-	name := migration.Create().Column("name").Type("VARCHAR").Nullable(true).Length(75)
-	gender := migration.Create().Column("gender").Type("INT").Length(11)
-	created_at := migration.Create().Column("created_at").Type("TIMESTAMP").DefaultTimestamp()
-	updated_at := migration.Create().Column("updated_at").Type("TIMESTAMP").NullableTimestamp()
-	constraints, err := migration.Add().ForeignKey("gender").References("id").On("genders")
+	id := schema.Create().Column("id").Type("INT").Nullable(false).Length(11).PrimaryKey().AutoIncrement()
+	name := schema.Create().Column("name").Type("VARCHAR").Nullable(true).Length(75)
+	gender := schema.Create().Column("gender").Type("INT").Length(11)
+	created_at := schema.Create().Column("created_at").Type("TIMESTAMP").DefaultTimestamp()
+	updated_at := schema.Create().Column("updated_at").Type("TIMESTAMP").NullableTimestamp()
+	constraints, err := schema.Add().ForeignKey("gender").References("id").On("genders")
 
-	table := migration.Table{
-		Columns:    []migration.Schema{*id, *name, *gender, *created_at, *updated_at},
+	table := schema.Table{
+		Name:       "users",
+		Columns:    []schema.Schema{*id, *name, *gender, *created_at, *updated_at},
 		Constraint: *constraints,
+		Connector:  m.Connector,
 	}
-	err = migration.Blueprint(m.Connector, "users", table)
+	err = table.Blueprint()
 	if err != nil {
 		return
 	}
