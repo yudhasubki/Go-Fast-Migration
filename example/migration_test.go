@@ -30,9 +30,10 @@ func (m *Migration) GenderMigration() {
 	id := schema.Create().Column("id").Type("INT").Nullable(false).Length(11).PrimaryKey().AutoIncrement()
 	gender := schema.Create().Column("gender").Type("enum").Enum([]string{"Men", "Women"}).NullableEnum()
 	table := schema.Table{
+		Name:    "genders",
 		Columns: []schema.Schema{*id, *gender},
 	}
-	err := schema.Blueprint(m.Connector, "genders", table)
+	err := schema.Blueprint(m.Connector, table)
 	if err != nil {
 		return
 	}
@@ -48,10 +49,11 @@ func (m *Migration) UserMigration() (err error) {
 	constraints, err := schema.Add().ForeignKey("gender").References("id").On("genders")
 
 	table := schema.Table{
+		Name:       "users",
 		Columns:    []schema.Schema{*id, *name, *gender, *created_at, *updated_at},
 		Constraint: *constraints,
 	}
-	err = schema.Blueprint(m.Connector, "users", table)
+	err = schema.Blueprint(m.Connector, table)
 	if err != nil {
 		return
 	}

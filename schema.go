@@ -11,6 +11,7 @@ import (
 )
 
 type Table struct {
+	Name       string
 	Columns    []Schema
 	Constraint Constraint
 }
@@ -44,9 +45,9 @@ var ErrorMessage = struct {
 	"Error: Constraint length not match",
 }
 
-func Blueprint(connector *sql.DB, tableName string, table Table) (err error) {
+func Blueprint(connector *sql.DB, table Table) (err error) {
 	var fields []string
-	createTable := `CREATE TABLE IF NOT EXISTS ` + tableName + ` (` + "\n"
+	createTable := `CREATE TABLE IF NOT EXISTS ` + table.Name + ` (` + "\n"
 	for _, schema := range table.Columns {
 		v := reflect.Indirect(reflect.ValueOf(schema))
 		typeOf := v.Type()
