@@ -16,6 +16,7 @@ type Table struct {
 	Constraint Constraint
 	Engine     string
 	Charset    string
+	Connector  *sql.DB
 }
 
 type Schema struct {
@@ -37,9 +38,109 @@ type Constraint struct {
 
 const (
 	Default = "DEFAULT"
-	Engine  = "InnoDB"
-	Charset = "utf8"
 )
+
+var Engine = struct {
+	InnoDB,
+	MyISAM,
+	Memory,
+	CSV,
+	Merge,
+	Archive,
+	Blackhole,
+	Federated string
+}{
+	"InnoDB",
+	"MyISAM",
+	"Memory",
+	"CSV",
+	"Merge",
+	"Archive",
+	"Blackhole",
+	"Federated",
+}
+
+var Charset = struct {
+	Big5,
+	Dec8,
+	Cp850,
+	Hp8,
+	Koi8r,
+	Latin1,
+	Latin2,
+	Swe7,
+	Ascii,
+	Ujis,
+	Sjis,
+	Hebrew,
+	Tis620,
+	Euckr,
+	Koi82,
+	Gb2312,
+	Greek,
+	Cp1250,
+	Gbk,
+	Latin5,
+	Armscii8,
+	Utf8,
+	Ucs2,
+	Cp866,
+	Keybcs2,
+	Macce,
+	Macroman,
+	Cp852,
+	Latin7,
+	Utf8mb4,
+	Cp1251,
+	Utf16,
+	Cp1256,
+	Cp1257,
+	Utf32,
+	Binary,
+	Geostd8,
+	Cp932,
+	eucjpms string
+}{
+	"big5",
+	"dec8",
+	"cp850",
+	"hp8",
+	"koi8r",
+	"latin1",
+	"latin2",
+	"swe7",
+	"ascii",
+	"ujis",
+	"sjis",
+	"hebrew",
+	"tis620",
+	"euckr",
+	"koi8u",
+	"gb2312",
+	"greek",
+	"cp1250",
+	"gbk",
+	"latin5",
+	"armscii8",
+	"utf8",
+	"ucs2",
+	"cp866",
+	"keybcs2",
+	"macce",
+	"macroman",
+	"cp852",
+	"latin7",
+	"utf8mb4",
+	"cp1251",
+	"utf16",
+	"cp1256",
+	"cp1257",
+	"utf32",
+	"binary",
+	"geostd8",
+	"cp932",
+	"eucjpms",
+}
 
 var ErrorMessage = struct {
 	ConstraintNotMatch string
@@ -47,10 +148,10 @@ var ErrorMessage = struct {
 	"Error: Constraint length not match",
 }
 
-func Blueprint(connector *sql.DB, table Table) (err error) {
+func (t *Table) Blueprint() (err error) {
 	var fields []string
-	createTable := `CREATE TABLE IF NOT EXISTS ` + table.Name + ` (` + "\n"
-	for _, schema := range table.Columns {
+	createTable := `CREATE TABLE IF NOT EXISTS ` + t.Name + ` (` + "\n"
+	for _, schema := range t.Columns {
 		v := reflect.Indirect(reflect.ValueOf(schema))
 		typeOf := v.Type()
 
@@ -92,7 +193,7 @@ func Blueprint(connector *sql.DB, table Table) (err error) {
 	var data string
 	for idx, field := range fields {
 		if len(fields)-1 == idx {
-			if table.Constraint.constraints != "" {
+			if t.Constraint.constraints != "" {
 				data += field + ",\n"
 				continue
 			}
@@ -104,22 +205,22 @@ func Blueprint(connector *sql.DB, table Table) (err error) {
 
 	createTable += data
 
-	if table.Constraint.constraints != "" {
-		createTable += table.Constraint.constraints
+	if t.Constraint.constraints != "" {
+		createTable += t.Constraint.constraints
 	}
 
-	engine := table.Engine
+	engine := t.Engine
 	if engine == "" {
-		engine = Engine
+		engine = Engine.InnoDB
 	}
 
-	charset := table.Charset
+	charset := t.Charset
 	if charset == "" {
-		charset = Charset
+		charset = Charset.Utf8
 	}
 
 	createTable += fmt.Sprintf(`) ENGINE=%s CHARACTER SET=%s;`, engine, charset)
-	_, err = connector.Exec(createTable)
+	_, err = t.Connector.Exec(createTable)
 
 	if err != nil {
 		log.Fatalln(fmt.Sprintf("%v", err))
