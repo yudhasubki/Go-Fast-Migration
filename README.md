@@ -1,6 +1,6 @@
 # Go Fast Migration
 
-*Simple database migration for Go (inspired by [laravel](https://github.com/laravel/laravel) migration).*
+*Simple database migration for Go (inspired by [laravel](https://github.com/laravel/laravel) migration). This migration powered by golang testing library*
 
 ## Installation
 
