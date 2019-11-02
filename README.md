@@ -1,6 +1,6 @@
 # Go Fast Migration
 
-*Go database migration with [laravel](https://github.com/laravel/laravel) migration as reference. Just use fluent interface then naming with variable as column name*
+*Simple database migration for Go (inspired by [laravel](https://github.com/laravel/laravel) migration).*
 
 ## Installation
 
