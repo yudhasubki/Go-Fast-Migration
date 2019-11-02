@@ -1,4 +1,4 @@
-# Go Fast Migration
+<p align="center"><h1>Go Fast Migration</h1></p>
 
 *Go database migration with [laravel](https://github.com/laravel/laravel) migration as reference. Just use fluent interface then naming with variable as column name*
 
