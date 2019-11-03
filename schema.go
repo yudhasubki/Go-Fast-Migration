@@ -144,8 +144,12 @@ var Charset = struct {
 
 var ErrorMessage = struct {
 	ConstraintNotMatch string
+	ColumnNameEmpty    string
+	DataTypeEmpty      string
 }{
+	"Error: Column Name is Empty",
 	"Error: Constraint length not match",
+	"Error: Data Type is Empty",
 }
 
 func (t *Table) Blueprint() (err error) {
@@ -158,12 +162,12 @@ func (t *Table) Blueprint() (err error) {
 		columns := make([]string, 0)
 		for i := 0; i < v.NumField(); i++ {
 			if typeOf.Field(i).Name == "column" && v.Field(i).String() == "" {
-				err = errors.New("Please fill a column name")
+				err = makeError(ErrorMessage.ColumnNameEmpty)
 				return
 			}
 
 			if typeOf.Field(i).Name == "dataType" && v.Field(i).String() == "" {
-				err = errors.New("Please fill a data type")
+				err = makeError(ErrorMessage.DataTypeEmpty)
 				return
 			}
 			switch v.Field(i).Kind() {
@@ -303,7 +307,7 @@ func (s *Schema) Default(value string) *Schema {
 	return s
 }
 
-func (s *Schema) DefaultTimestamp() *Schema {
+func (s *Schema) DefaultCurrentTimestamp() *Schema {
 	s.defaultColumn = "DEFAULT CURRENT_TIMESTAMP"
 	return s
 }
@@ -352,7 +356,7 @@ func (c *Constraint) On(tables ...string) (*Constraint, error) {
 		}
 		foreignKeys += fmt.Sprintf("%s, \n", fk)
 	}
-	fmt.Println(foreignKeys)
+
 	c.constraints = foreignKeys
 	return c, nil
 }

@@ -45,7 +45,7 @@ func (m *Migration) UserMigration() (err error) {
 	id := schema.Create().Column("id").Type("INT").Nullable(false).Length(11).PrimaryKey().AutoIncrement()
 	name := schema.Create().Column("name").Type("VARCHAR").Nullable(true).Length(75)
 	gender := schema.Create().Column("gender").Type("INT").Length(11)
-	created_at := schema.Create().Column("created_at").Type("TIMESTAMP").DefaultTimestamp()
+	created_at := schema.Create().Column("created_at").Type("TIMESTAMP").DefaultCurrentTimestamp()
 	updated_at := schema.Create().Column("updated_at").Type("TIMESTAMP").NullableTimestamp()
 	constraints, err := schema.Add().ForeignKey("gender").References("id").On("genders")
 
